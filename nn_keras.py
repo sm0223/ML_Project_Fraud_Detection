@@ -15,6 +15,9 @@ for dirname, _, filenames in os.walk('/kaggle/input'):
 
 # You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All" 
 # You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+
+
+#Import all necessary Libraries and packages
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -28,34 +31,49 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import f1_score
 from sklearn.model_selection import GridSearchCV,KFold,RandomizedSearchCV
 pd.set_option('display.max_columns',None)
+
+## Load the DataSets
 x=pd.read_csv("/kaggle/input/feat-engg/train_mod.csv")
 y=pd.read_csv("/kaggle/input/feat-engg/target_mod.csv")
 test=pd.read_csv("/kaggle/input/feat-engg/test_mod.csv")
+
+## Imblearn is used for OverSampling(SMOTE) and UnderSampling(RamdomUnderSampler) of Imbalanced Datasets.
 from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
 
+
+## UnderSampling Done
 rus=RandomUnderSampler(random_state=0)
 smote=SMOTE(sampling_strategy='minority')
 X_sm,y_sm=rus.fit_resample(x,y)
+
+
+##Splitting Train and Test Data
 from sklearn.model_selection import train_test_split
 X_train,X_test, y_train, y_test= train_test_split(X_sm,y_sm,test_size=0.2,stratify=y_sm, random_state=1)
 import tensorflow as tf
 import keras
 from keras.models import Sequential
 from keras.layers import Dense
-X_train.shape
+print(X_train.shape)
+
+## Standardising Training Data
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
+## Changing everything to Numpy
 y_train = y_train.to_numpy()
 y_test = y_test.to_numpy()
 
+##Reshaping Data
 X_train.shape
 X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], 1)
 X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], 1)
 
-X_train.shape, X_test.shape
+print(X_train.shape, X_test.shape)
+
+## Importing all necessary libraries of TensorFlow Keras
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import Sequential
@@ -63,6 +81,8 @@ from tensorflow.keras.layers import Flatten, Dense, Dropout, BatchNormalization
 from tensorflow.keras.layers import Conv1D, MaxPool1D
 from tensorflow.keras.optimizers import Adam
 
+
+##Model 1- without any MaxPools.
 epochs = 20
 model = Sequential()
 model.add(Conv1D(32, 2, activation='relu', input_shape = X_train[0].shape))
@@ -135,6 +155,10 @@ for i in ypred:
         ans.append(0)
 len(ans)
 pd.DataFrame(ans).to_csv('nn_pred.csv')
+
+
+
+##Model 2- With DropOuts
 epochs = 100
 model = Sequential()
 model.add(Conv1D(32, 2, activation='relu', input_shape = X_train[0].shape))
@@ -183,6 +207,8 @@ len(ans)
 pd.DataFrame(ans).to_csv('nn_pred.csv')
 
 
+
+###Implementing Keras Tuner
 from tensorflow import keras
 from tensorflow.keras import layers
 from kerastuner.tuners import RandomSearch
