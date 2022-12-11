@@ -12,32 +12,39 @@ from sklearn.metrics import f1_score
 
 pd.set_option('display.max_columns',None)
 
+#Loading the Dataset
 x=pd.read_csv("train_mod.csv")
 y=pd.read_csv("train_target.csv")
 test=pd.read_csv("test_preprocessed.csv")
 
+#Importing GridSearchCV(For Hyperparameter Tuning), SMOTE(For oversamping), RandomUnderSamper(For UnderSampling)
 from sklearn.model_selection import GridSearchCV,KFold
 from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
 
+#UnderSampling Performed
 rus=RandomUnderSampler(random_state=0)
 X_sm,y_sm=rus.fit_resample(x,y)
 
+#Parameters for Tuning
 params={"max_depth": [2,3,5,20,50],
        "min_samples_leaf": [5,10,20,50,100],
        "criterion": ["gini","entropy"]
        }
 
+#Building Decision Tree
 from sklearn import tree
 dt = tree.DecisionTreeClassifier()
+
+#GridSearchCV for Hyperparameter Tuning
 clf=GridSearchCV(estimator=dt,param_grid=params,scoring='f1_micro')
 
 clf.fit(X_sm,y_sm)
-
 print(clf.best_estimator_)
 
 print(clf.best_score_)
 
+#Final Model with Hyperparameters
 dt=tree.DecisionTreeClassifier(criterion='entropy', max_depth=50, min_samples_leaf=50)
 
 dt.fit(X_sm,y_sm)
