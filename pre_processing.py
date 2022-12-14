@@ -151,5 +151,5 @@ df_test = x_transformed.iloc[429525:,:]
 
 #generating the csv files for model training
 df_train.to_csv("train_mod.csv")
-df_test.to_csv("test_mod.csv")
-target.isFraud.to_csv("target_mod.csv")
+df_test.to_csv("test_preprocessed.csv")
+target.to_csv("train_target.csv")
