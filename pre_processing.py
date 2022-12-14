@@ -16,6 +16,13 @@ def myPCA(n_components, df, cols):
 # Load the Dataset
 df1=pd.read_csv("train.csv")
 df2 = pd.read_csv("test.csv")
+
+# Finding Outliers
+print("Frauds")
+print(df1[df1['isFraud']==1]['TransactionAmt'].quantile([.01, .1, .25, .5, .75, .9,.98]))
+print("No Fraud")
+print(df1[df1['isFraud']==0]['TransactionAmt'].quantile([.01, .1, .25, .5, .75, .9,.98]))
+
 # Removing Outliers(~97.5 %ile)
 df1 = df1[df1['TransactionAmt'] <=800]
 df1 = df1[df1['TransactionAmt'] >=10]
@@ -73,7 +80,6 @@ x.loc[x['id_30'].str.contains('Mac OS',na = False), 'id_30'] = 'Mac'
 x.loc[x['id_30'].str.contains('Windows', na = False), 'id_30'] = 'Windows'
 x.loc[x['id_30'].str.contains('iOS',na = False),'id_30'] = 'iOS'
 
-
 #Categorising id_31 properly
 x.loc[x['id_31'].str.contains('samsung',na = False),'id_31'] = 'Samsung'
 x.loc[x['id_31'].str.contains('firefox',na = False),'id_31'] = 'Firefox'
@@ -84,6 +90,20 @@ x.loc[x['id_31'].str.contains('ie', na = False),'id_31'] = 'IE'
 x.loc[x['id_31'].str.contains('opera', na = False),'id_31'] = 'Opera'
 x['id_31'].fillna('NA',inplace = True)
 x.loc[x.id_31.isin(x.id_31.value_counts()[x.id_31.value_counts() < 200].index),'id_31'] = 'Others'
+
+#Deviation from usual trasaction amount by card 1
+card1uniques = x['card1'].unique()
+for card in card1uniques :
+    x.loc[x['card1'] == card, 'deviation_from_usual_transaction_amt_card1'] = x[x['card1'] == card]['TransactionAmt'].mean()
+
+#Deviation from usual trasaction amount by card 2
+card4uniques = x['card4'].unique()
+for card in card4uniques :
+    x.loc[x['card4'] == card, 'deviation_from_usual_transaction_amt_card4'] = x[x['card4'] == card]['TransactionAmt'].mean()
+
+#Standard Feature engineering(Mean and std deviation) on Transaction amount
+x['Trans_min_mean'] = x['TransactionAmt'] - x['TransactionAmt'].mean()
+x['Trans_min_std'] = x['Trans_min_mean'] / (x['TransactionAmt'].std() + 1e-9)
 
 
 # v cols from 45 - 336 are imputed min - 1 and scaling using MinMaxScaler
